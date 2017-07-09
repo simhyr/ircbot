@@ -1,0 +1,19 @@
+{
+  "name": "ircbot",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "simhr",
+  "license": "ISC",
+  "dependencies": {
+    "fs": "0.0.1-security",
+    "net": "^1.0.2",
+    "path": "^0.12.7",
+    "process": "^0.11.10",
+    "q": "^1.5.0",
+    "underscore.string": "^3.3.4"
+  }
+}
