@@ -70,6 +70,7 @@ IRC.prototype.start = function() {
   self.robotLoader.getBots().forEach(function(bot) {
     console.log(bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
     var socket = self._connect(bot);
+    // TODO check if connection could be established
     console.log(bot.nickname + ' connected');
     self._sockets.push(socket);
 
