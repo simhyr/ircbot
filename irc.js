@@ -21,6 +21,11 @@ IRC.prototype.stop = function() {
 
 IRC.prototype._connect = function(bot) {
   var socket = net.Socket();
+
+  socket.on('error', function(error) {
+    console.log('ERROR ' + bot.nickname + ': ' + error.message);
+  });
+
   return socket.connect(this.config.port, this.config.server);
 };
 
@@ -70,18 +75,33 @@ IRC.prototype.start = function() {
 
     console.log('Setup ' + bot.nickname);
     var registration = self._register(socket, bot);
-    registration.then(function() {
+    registration.then(function () {
       console.log('Setup ' + bot.nickname + ' completed');
-      socket.on('data', function(data){
-        // TODO parse message into nick, time, message
-        var message = data.toString();
-        if(bot.hasOwnProperty('onMessageAction'))
-          bot.onMessageAction(socket, message);
-      });
-    });
+      socket.on('data', function (data) {
+        var msgInfo = parseIRCMessage(data.toString());
+        if(!msgInfo)
+          return;
 
-    socket.on('error', function(err) {
-      console.log('ERROR ' + bot.nickname + ': ' + err.message);
+        if (bot.hasOwnProperty('onMessageAction'))
+          bot.onMessageAction(socket, msgInfo.nickname, msgInfo.nickaddress, msgInfo.command, msgInfo.cmdargs, msgInfo.message);
+      });
     });
   });
 };
+
+function parseIRCMessage(message) {
+  message = _str.trim(message);
+  // :<botname>!<botname@botaddress> <command> <parameterlist>:<message>
+  const regex = /:(\w+)!(\w+@[\w|.]*) ([a-z]+) ([#|\w]*) *:(.*)/gi;
+  var match = regex.exec(message);
+  if(!match || match.length !== 6)
+    return;
+
+  return {
+    nickname: match[1],
+    nickaddress: match[2],
+    command: match[3],
+    cmdargs: match[4],
+    message: match[5]
+  };
+}

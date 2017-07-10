@@ -10,12 +10,14 @@ module.exports = {
 
   // optional properties
   password: 'abcdef',
-  onMessageAction: function(socket, message) {
-    var hello = _str.strRightBack(message, ':').trim();
-    //console.log('BOT GET MEssage=' + hello);
-    if(hello === 'Hallo') {
-      //console.log('answering!');
-      socket.write('PRIVMSG #support :Hallo\r\n');
+  onMessageAction: function(socket, nickname, nickaddress, command, cmdargs, message) {
+    if(command === 'PRIVMSG' && cmdargs === '#support') {
+      // new message in #support channel
+      if(_str(message).startsWith('Hallo'))
+        socket.write('PRIVMSG #support :Hallo '+ nickname +' :-)\r\n');
+
+      if(_str(message).startsWith('Tschüss'))
+        socket.write('PRIVMSG #support :Tschüss '+ nickname +'!\r\n')
     }
   }
 };
