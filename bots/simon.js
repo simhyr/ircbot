@@ -3,7 +3,7 @@
  */
 const _str = require('underscore.string');
 
-var count = 0;
+var once = false;
 module.exports = {
   // required properties
   nickname: 'SimonIRC',
@@ -11,31 +11,35 @@ module.exports = {
 
   // optional properties
   password: 'abcdef',
-  onMessageAction: function(socket, nickname, nickaddress, command, cmdargs, message) {
 
-
-    console.log('command=' + command);
-    console.log('cmdargs=' + cmdargs);
-    console.log('message=' + message);
-
-    if(command === 'JOIN' && nickname !== 'SimonIRC') {
-      // channel == message
-      socket.write('PRIVMSG ' + message + ' :Hallo ' + nickname + '! Wilkommen im ' + message + '-Channel ;-)\r\n');
-    }
-
-    if(command === 'PRIVMSG') {
-      var to = (cmdargs === 'SimonIRC') ? nickname : cmdargs;
-
-      // new message in #support channel
-      if(_str(message).startsWith('Hallo'))
-        socket.write('PRIVMSG ' + to + ' :Hallo '+ nickname +' ;-)\r\n');
-
-      if(_str(message).startsWith('Tschüss'))
-        socket.write('PRIVMSG '+ to + ' :Tschüss '+ nickname +'!\r\n')
-    }
+  onJoinAction: function(socket, nickname, channel) {
+    socket.write('PRIVMSG ' + channel + ' :Hallo ' + nickname + '! Wilkommen im ' + channel + '-Channel ;-)\r\n');
   },
 
-  onIntervalAction: function(socket) {
-    //socket.write('PRIVMSG #support :' + (++count) + '. Nachricht!\r\n');
+  onPartAction: function(socket, nickname, channel, message) {
+    // nickname just left channel
+  },
+
+  onMessageAction: function(socket, nickname, recipient, message) {
+    // recipient may be a channel or own name
+    var to = (recipient === 'SimonIRC') ? nickname : recipient;
+
+    if(_str(message).startsWith('Hallo'))
+      socket.write('PRIVMSG ' + to + ' :Hallo '+ nickname +' ;-)\r\n');
+
+    if(_str(message).startsWith('Tschüss'))
+      socket.write('PRIVMSG '+ to + ' :Tschüss '+ nickname +'!\r\n')
+  },
+
+  onIntervalAction: function(socket, channel, dateTime) {
+    if(!once && dateTime.getHours() === 17) {
+      var isFriday = (dateTime.getDay() === 5);
+
+      var message = (isFriday) ? 'Simon wünscht euch allen einen schönen Feierabend und ein schönes Wochenende!'
+        : 'Simon wünscht euch allen einen schönen Feierabend!';
+
+      socket.write('PRIVMSG '+ channel + ' :' + message + '\r\n');
+      once = true;
+    }
   }
 };

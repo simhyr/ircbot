@@ -85,14 +85,23 @@ IRC.prototype.start = function() {
       console.log('Setup ' + bot.nickname + ' completed');
       socket.on('data', function (data) {
         var msgInfo = parseIRCMessage(data.toString());
-        console.log(data.toString());
-        if (msgInfo && bot.hasOwnProperty('onMessageAction'))
-          bot.onMessageAction(socket, msgInfo.nickname, msgInfo.nickaddress, msgInfo.command, msgInfo.cmdargs, msgInfo.message);
+
+        if(!msgInfo)
+          return;
+
+        if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
+          bot.onJoinAction(socket, msgInfo.nickname, msgInfo.message);
+
+        if(msgInfo.command === 'PART' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
+          bot.onPartAction(socket, msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+
+        if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
+          bot.onMessageAction(socket, msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
       });
 
       self._intervals.push(setInterval(function() {
         if(bot.hasOwnProperty('onIntervalAction'))
-          bot.onIntervalAction(socket);
+          bot.onIntervalAction(socket, bot.channel, new Date());
       }, self.config.interval));
     });
   });
