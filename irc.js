@@ -79,10 +79,7 @@ IRC.prototype.start = function() {
       console.log('Setup ' + bot.nickname + ' completed');
       socket.on('data', function (data) {
         var msgInfo = parseIRCMessage(data.toString());
-        if(!msgInfo)
-          return;
-
-        if (bot.hasOwnProperty('onMessageAction'))
+        if (msgInfo && bot.hasOwnProperty('onMessageAction'))
           bot.onMessageAction(socket, msgInfo.nickname, msgInfo.nickaddress, msgInfo.command, msgInfo.cmdargs, msgInfo.message);
       });
     });
@@ -92,7 +89,8 @@ IRC.prototype.start = function() {
 function parseIRCMessage(message) {
   message = _str.trim(message);
   // :<botname>!<botname@botaddress> <command> <parameterlist>:<message>
-  const regex = /:(\w+)!(\w+@[\w|.]*) ([a-z]+) ([#|\w]*) *:(.*)/gi;
+  //(?:) => does not form a capture group to not include \n into group
+  const regex = /:(.+)!(.+@.+)[ ]([a-z]+)[ ](?:(.*)[ ])*:(.*)/gi;
   var match = regex.exec(message);
   if(!match || match.length !== 6)
     return;
