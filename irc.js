@@ -15,20 +15,18 @@ function IRC(config, robotLoader) {
 
 IRC.prototype.stop = function() {
   this._sockets.forEach(function(socket) {
-    socket.end();
+    socket.end('QUIT\r\n');
   });
 };
 
 IRC.prototype._connect = function(bot) {
   var socket = net.Socket();
-  socket.connect(this.config.port, this.config.server);
-  return socket;
+  return socket.connect(this.config.port, this.config.server);
 };
 
 IRC.prototype._register = function(socket, bot) {
   var self = this;
   var deferred = q.defer();
-  // register bot
   if(bot.hasOwnProperty('password'))
     socket.write('PASS ' + bot.passwyord + '\r\n');
 
@@ -55,8 +53,7 @@ IRC.prototype._register = function(socket, bot) {
 };
 
 IRC.prototype._join = function(socket, bot) {
-  var join = 'JOIN ' + bot.channel + '\r\n';
-  socket.write(join);
+  socket.write('JOIN ' + bot.channel + '\r\n');
   bot.joined = true;
 };
 
@@ -84,7 +81,7 @@ IRC.prototype.start = function() {
     });
 
     socket.on('error', function(err) {
-      console.log(err);
+      console.log('ERROR ' + bot.nickname + ': ' + err.message);
     });
   });
 };
