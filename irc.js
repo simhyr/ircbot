@@ -11,9 +11,14 @@ function IRC(config, robotLoader) {
   this.robotLoader = robotLoader;
   this.config = config;
   this._sockets = [];
+  this._intervals = [];
 }
 
 IRC.prototype.stop = function() {
+  this._intervals.forEach(function(interval) {
+    clearInterval(interval);
+  });
+
   this._sockets.forEach(function(socket) {
     socket.end('QUIT\r\n');
   });
@@ -83,6 +88,11 @@ IRC.prototype.start = function() {
         if (msgInfo && bot.hasOwnProperty('onMessageAction'))
           bot.onMessageAction(socket, msgInfo.nickname, msgInfo.nickaddress, msgInfo.command, msgInfo.cmdargs, msgInfo.message);
       });
+
+      self._intervals.push(setInterval(function() {
+        if(bot.hasOwnProperty('onIntervalAction'))
+          bot.onIntervalAction(socket);
+      }, 1000));
     });
   });
 };

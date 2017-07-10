@@ -3,9 +3,10 @@
  */
 const _str = require('underscore.string');
 
+var count = 0;
 module.exports = {
   // required properties
-  nickname: 'SimonIRCbot',
+  nickname: 'SimonIRC',
   channel: '#support',
 
   // optional properties
@@ -19,5 +20,9 @@ module.exports = {
       if(_str(message).startsWith('Tschüss'))
         socket.write('PRIVMSG #support :Tschüss '+ nickname +'!\r\n')
     }
+  },
+
+  onIntervalAction: function(socket) {
+    socket.write('PRIVMSG #support :' + (++count) + '. Nachricht!\r\n');
   }
 };
