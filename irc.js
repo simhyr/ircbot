@@ -92,7 +92,7 @@ IRC.prototype.start = function() {
       self._intervals.push(setInterval(function() {
         if(bot.hasOwnProperty('onIntervalAction'))
           bot.onIntervalAction(socket);
-      }, 1000));
+      }, self.config.interval));
     });
   });
 };
