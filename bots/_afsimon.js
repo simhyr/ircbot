@@ -7,6 +7,7 @@ const msg = require('../utility/messages');
 var onceBye = false;
 var onceHello = false;
 
+const redirectRecvNick = 'simon';
 const byes = ['tschüss', 'ciao', 'schönen abend', 'guten abend', 'feierabend', 'bye'];
 const hellos = ['hallo', 'guten morgen', 'schönen morgen', 'hi', 'hey'];
 
@@ -25,6 +26,10 @@ module.exports = {
 
   // nickname = sender of message, recipient = receiver of message
   onMessageAction: function(irc, nickname, recipient, message) {
+    // redirect all messages that i did not send to my nick
+    if(nickname !== redirectRecvNick)
+      irc.redirectTo(message, redirectRecvNick, nickname);
+
     // recipient may be a channel or own name
     var to = (recipient === 'SimonIRC') ? nickname : recipient;
     var time = new Date();

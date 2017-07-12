@@ -12,3 +12,8 @@ IRC.prototype.write = function(message, recipient) {
   recipient = recipient || this._bot.channel;
   this._socket.write('PRIVMSG ' + recipient + ' :' + message + '\r\n');
 };
+
+IRC.prototype.redirectTo = function(message, recipient, sender) {
+  message = (sender) ? sender + ': ' + message : message;
+  this.write(message, recipient);
+};

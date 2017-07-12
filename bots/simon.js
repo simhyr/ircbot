@@ -7,16 +7,17 @@ const msg = require('../utility/messages');
 var onceBye = false;
 var onceHello = false;
 
+const redirectRecvNick = 'simon';
 const byes = ['ciao', 'bye', 'nice day', 'good evening', 'cya', 'see you'];
 const hellos = ['hello', 'good morning', 'hi', 'hey'];
 
 module.exports = {
   // required properties
   nickname: 'simonIRCbot',
-  channel: '#support',
+  channel: '#mychannel',
 
   // optional properties
-  password: 'abcdef',
+  //password: 'abcdef',
 
   onJoinAction: function(irc, nickname, channel) {
     irc.write('Hello ' + _str.humanize(nickname) + '! Welcome to ' + channel + '-channel ;-)');
@@ -28,6 +29,9 @@ module.exports = {
 
   // nickname = sender of message, recipient = receiver of message
   onMessageAction: function(irc, nickname, recipient, message) {
+    if(nickname !== redirectRecvNick)
+      irc.redirectTo(message, redirectRecvNick, nickname);
+
     // recipient may be a channel or own name
     var to = (recipient === 'simonIRCbot') ? nickname : recipient;
 
