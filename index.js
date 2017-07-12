@@ -14,7 +14,7 @@ function registerExitHandlers(irc) {
 }
 
 (function(config) {
-  var botLoader = new (require('./botLoader'))(config.botDirectory);
+  var botLoader = new (require('./botLoader'))(config.botDirectory, config.hiddenChar);
 
   console.log('Loading all IRC bots...');
   if(!botLoader.init()) {
