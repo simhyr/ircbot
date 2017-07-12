@@ -20,6 +20,7 @@ module.exports = {
     // nickname just left channel
   },
 
+  // nickname = sender of message, recipient = receiver of message
   onMessageAction: function(irc, nickname, recipient, message) {
     // recipient may be a channel or own name
     var to = (recipient === 'SimonIRC') ? nickname : recipient;

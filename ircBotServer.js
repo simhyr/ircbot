@@ -25,14 +25,14 @@ IRCBotServer.prototype.stop = function() {
   });
 };
 
-IRCBotServer.prototype._connect = function(bot) {
-  var socket = net.Socket();
+IRCBotServer.prototype._connect = function(bot, onConnectAction) {
+  var socket = net.createConnection({port: this.config.port, host: this.config.server}, onConnectAction);
 
   socket.on('error', function(error) {
     console.log('ERROR ' + bot.nickname + ': ' + error.message);
   });
 
-  return socket.connect(this.config.port, this.config.server);
+  return socket;
 };
 
 IRCBotServer.prototype._register = function(socket, bot) {
@@ -46,11 +46,10 @@ IRCBotServer.prototype._register = function(socket, bot) {
 
   socket.on('data', function(data) {
     var message = data.toString();
-    // register ping handler
+    // register ping/pong handler
     if (_str.contains(message, 'PING')) {
       var check = _str.strRightBack(message, ':');
-      var pong = 'PONG :' + check + '\r\n';
-      socket.write(pong);
+      socket.write('PONG :' + check + '\r\n');
 
       // join channel after first pong
       if(!bot.joined) {
@@ -75,35 +74,37 @@ IRCBotServer.prototype.start = function() {
   console.log('Connecting all IRC bots');
   self.botLoader.getBots().forEach(function(bot) {
     console.log(bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
-    var socket = self._connect(bot);
-    // TODO check if connection could be established
-    console.log(bot.nickname + ' connected');
-    self._sockets.push(socket);
+    var socket = self._connect(bot, function() {
+      console.log(bot.nickname + ' connected');
+      self._sockets.push(socket);
 
-    console.log('Setup ' + bot.nickname);
-    var registration = self._register(socket, bot);
-    registration.then(function () {
-      console.log('Setup ' + bot.nickname + ' completed');
-      socket.on('data', function (data) {
-        var msgInfo = parseIRCMessage(data.toString());
+      console.log('Setup ' + bot.nickname);
+      var registration = self._register(socket, bot);
+      registration.then(function () {
+        console.log('Setup ' + bot.nickname + ' completed');
+        socket.on('data', function (data) {
+          var msgInfo = parseIRCMessage(data.toString());
+          if(!msgInfo)
+            return;
 
-        if(!msgInfo)
-          return;
+          // other nick has joined the channel
+          if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
+            bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
 
-        if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
-          bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
+          // other nick has left the channel
+          if(msgInfo.command === 'PART' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
+            bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
 
-        if(msgInfo.command === 'PART' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
-          bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+          // a message was received (either in channel or as private message)
+          if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
+            bot.onMessageAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+        });
 
-        if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
-          bot.onMessageAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+        self._intervals.push(setInterval(function() {
+          if(bot.hasOwnProperty('onIntervalAction'))
+            bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
+        }, self.config.interval));
       });
-
-      self._intervals.push(setInterval(function() {
-        if(bot.hasOwnProperty('onIntervalAction'))
-          bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
-      }, self.config.interval));
     });
   });
 };
@@ -111,7 +112,7 @@ IRCBotServer.prototype.start = function() {
 function parseIRCMessage(message) {
   message = _str.trim(message);
   // :<botname>!<botname@botaddress> <command> <parameterlist>:<message>
-  //(?:) => does not form a capture group to not include \n into group
+  //(?:) => does not form a capture group to not include ' ' into group
   const regex = /:(.+)!(\S*)[ ]([a-z]+)[ ](?:(\S+)[ ]){0,1}:(.*)/ig;
   var match = regex.exec(message);
   if(!match || match.length !== 6)
