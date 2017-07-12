@@ -13,6 +13,7 @@ function IRCBotServer(config, botLoader) {
   this.config = config;
   this._sockets = [];
   this._intervals = [];
+  this._retryJoinMax = 15;
 }
 
 IRCBotServer.prototype.init = function() {
@@ -59,6 +60,13 @@ IRCBotServer.prototype._connect = function(bot, onConnectAction) {
   return socket;
 };
 
+IRCBotServer.prototype._runPingHandler = function(socket, message) {
+  if (_str.startsWith(message, 'PING')) {
+    var check = _str.strRightBack(message, ':');
+    socket.write('PONG :' + check + '\r\n');
+  }
+};
+
 IRCBotServer.prototype._register = function(socket, bot) {
   var self = this;
   var deferred = q.defer();
@@ -68,19 +76,28 @@ IRCBotServer.prototype._register = function(socket, bot) {
   socket.write('NICK ' + bot.nickname + '\r\n');
   socket.write('USER ' + bot.nickname + ' localhost ' + self.config.server + ' :'+self.nickname+'\r\n');
 
+  var tryJoin = setInterval(function() {
+    self._join(socket, bot);
+    bot.retryJoinCnt = !bot.retryJoinCnt ? 1 : bot.retryJoinCnt + 1;
+  }, 2000);
+
+  // to be sure that it gets killed on application stop
+  self._intervals.push(tryJoin);
+
   socket.on('data', function(data) {
     var message = data.toString();
     // register ping/pong handler
-    if (_str.startsWith(message, 'PING')) {
-      console.log('PING message=' + message);
-      var check = _str.strRightBack(message, ':');
-      socket.write('PONG :' + check + '\r\n');
+    self._runPingHandler(socket, message);
+    if(!bot.joined && _str(message).contains(bot.nickname + ' = ' + bot.channel + ' ')) {
+      console.log(bot.nickname + ' joined ' + bot.channel);
+      bot.joined = true;
+      clearInterval(tryJoin);
+      deferred.resolve();
+    }
 
-      // join channel after first pong
-      if(!bot.joined) {
-        self._join(socket, bot);
-        deferred.resolve();
-      }
+    if(bot.retryJoinCnt >= self._retryJoinMax && !bot.joined) {
+      clearInterval(tryJoin);
+      deferred.reject(socket);
     }
   });
 
@@ -89,7 +106,6 @@ IRCBotServer.prototype._register = function(socket, bot) {
 
 IRCBotServer.prototype._join = function(socket, bot) {
   socket.write('JOIN ' + bot.channel + '\r\n');
-  bot.joined = true;
 };
 
 IRCBotServer.prototype.start = function() {
@@ -129,6 +145,9 @@ IRCBotServer.prototype.start = function() {
           if(bot.hasOwnProperty('onIntervalAction'))
             bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
         }, self.config.interval));
+      }, function(socket) {
+        console.log(bot.nickname + ' failed to join ' + bot.channel);
+        socket.end();
       });
     });
   });
