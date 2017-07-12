@@ -15,6 +15,30 @@ function IRCBotServer(config, botLoader) {
   this._intervals = [];
 }
 
+IRCBotServer.prototype.init = function() {
+  if(!this.config) {
+    console.log('ERROR: Failed to load config file');
+    return false;
+  }
+
+  if(!this.config.hasOwnProperty('server') || !(typeof this.config.server === 'string' || this.config.server instanceof String)) {
+    console.log('ERROR: Failed to load config.server');
+    return false;
+  }
+
+  if(!this.config.hasOwnProperty('port') || !(typeof this.config.port === 'number' || this.config.port instanceof Number)) {
+    console.log('ERROR: Failed to load config.port');
+    return false;
+  }
+
+  if(!this.config.hasOwnProperty('interval') || !(typeof this.config.interval === 'number' || this.config.interval instanceof  Number)) {
+    console.log('ERROR: Failed to load config.interval');
+    return false;
+  }
+
+  return true;
+};
+
 IRCBotServer.prototype.stop = function() {
   this._intervals.forEach(function(interval) {
     clearInterval(interval);
@@ -39,7 +63,7 @@ IRCBotServer.prototype._register = function(socket, bot) {
   var self = this;
   var deferred = q.defer();
   if(bot.hasOwnProperty('password'))
-    socket.write('PASS ' + bot.passwyord + '\r\n');
+    socket.write('PASS ' + bot.password + '\r\n');
 
   socket.write('NICK ' + bot.nickname + '\r\n');
   socket.write('USER ' + bot.nickname + ' localhost ' + self.config.server + ' :'+self.nickname+'\r\n');

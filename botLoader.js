@@ -18,6 +18,11 @@ function BotLoader(directory) {
 BotLoader.prototype.init = function(){
   var self = this;
 
+  if(!self._directory || !(typeof self._directory === 'string' || self._directory instanceof String)) {
+    console.log('ERROR: Failed to load bot directory');
+    return false;
+  }
+
   var files = fs.readdirSync(self._directory, {encoding: 'utf8'});
   if(files.length === 0) {
     console.log('ERROR: No IRC bot located under \'' + self._directory + '\'.');

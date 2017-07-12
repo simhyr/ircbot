@@ -4,6 +4,6 @@
 module.exports = {
   server: '192.168.2.103',
   port: 6667,
-  robotDirectory: 'bots',
+  botDirectory: 'bots',
   interval: 1000
 };

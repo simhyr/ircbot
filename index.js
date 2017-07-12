@@ -14,7 +14,7 @@ function registerExitHandlers(irc) {
 }
 
 (function(config) {
-  var botLoader = new (require('./botLoader'))(config.robotDirectory);
+  var botLoader = new (require('./botLoader'))(config.botDirectory);
 
   console.log('Loading all IRC bots...');
   if(!botLoader.init()) {
@@ -22,8 +22,13 @@ function registerExitHandlers(irc) {
     return;
   }
 
+  console.log('Initializing IRCBotServer...');
   var ircBotServer = new (require('./ircBotServer'))(config, botLoader);
-  ircBotServer.start();
+  if(!ircBotServer.init()) {
+    console.log('Initialization of IRCBotServer failed.');
+    return;
+  }
 
+  ircBotServer.start();
   registerExitHandlers(ircBotServer);
 })(require('./config'));
