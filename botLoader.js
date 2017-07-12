@@ -1,7 +1,7 @@
 /**
  * Created by simhr on 09.07.17.
  */
-module.exports = RobotLoader;
+module.exports = BotLoader;
 
 const fs = require('fs');
 const path = require('path');
@@ -10,12 +10,12 @@ function isValidBot(bot) {
   return bot.hasOwnProperty('nickname') && bot.hasOwnProperty('channel');
 }
 
-function RobotLoader(directory) {
+function BotLoader(directory) {
   this._directory = directory;
   this._bots = [];
 }
 
-RobotLoader.prototype.init = function(){
+BotLoader.prototype.init = function(){
   var self = this;
 
   var files = fs.readdirSync(self._directory, {encoding: 'utf8'});
@@ -39,7 +39,7 @@ RobotLoader.prototype.init = function(){
   return true;
 };
 
-RobotLoader.prototype.getBots = function() {
+BotLoader.prototype.getBots = function() {
   return this._bots;
 };
 

@@ -14,16 +14,16 @@ function registerExitHandlers(irc) {
 }
 
 (function(config) {
-  var robotLoader = new (require('./robotLoader'))(config.robotDirectory);
+  var botLoader = new (require('./botLoader'))(config.robotDirectory);
 
   console.log('Loading all IRC bots...');
-  if(!robotLoader.init()) {
+  if(!botLoader.init()) {
     console.log('Loading IRC bots failed.');
     return;
   }
 
-  var irc = new (require('./irc'))(config, robotLoader);
-  irc.start();
+  var ircBotServer = new (require('./ircBotServer'))(config, botLoader);
+  ircBotServer.start();
 
-  registerExitHandlers(irc);
+  registerExitHandlers(ircBotServer);
 })(require('./config'));

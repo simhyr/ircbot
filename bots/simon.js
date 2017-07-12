@@ -12,33 +12,33 @@ module.exports = {
   // optional properties
   password: 'abcdef',
 
-  onJoinAction: function(socket, nickname, channel) {
-    socket.write('PRIVMSG ' + channel + ' :Hallo ' + nickname + '! Wilkommen im ' + channel + '-Channel ;-)\r\n');
+  onJoinAction: function(irc, nickname, channel) {
+    irc.write('Hallo ' + nickname + '! Wilkommen im ' + channel + '-Channel ;-)');
   },
 
-  onPartAction: function(socket, nickname, channel, message) {
+  onPartAction: function(irc, nickname, channel, message) {
     // nickname just left channel
   },
 
-  onMessageAction: function(socket, nickname, recipient, message) {
+  onMessageAction: function(irc, nickname, recipient, message) {
     // recipient may be a channel or own name
     var to = (recipient === 'SimonIRC') ? nickname : recipient;
 
     if(_str(message).startsWith('Hallo'))
-      socket.write('PRIVMSG ' + to + ' :Hallo '+ nickname +' ;-)\r\n');
+      irc.write('Hallo '+ nickname +' ;-)', to);
 
     if(_str(message).startsWith('Tschüss'))
-      socket.write('PRIVMSG '+ to + ' :Tschüss '+ nickname +'!\r\n')
+      irc.write('Tschüss '+ nickname +'!', to);
   },
 
-  onIntervalAction: function(socket, channel, dateTime) {
+  onIntervalAction: function(irc, channel, dateTime) {
     if(!once && dateTime.getHours() === 17) {
       var isFriday = (dateTime.getDay() === 5);
 
       var message = (isFriday) ? 'Simon wünscht euch allen einen schönen Feierabend und ein schönes Wochenende!'
         : 'Simon wünscht euch allen einen schönen Feierabend!';
 
-      socket.write('PRIVMSG '+ channel + ' :' + message + '\r\n');
+      irc.write(message, channel);
       once = true;
     }
   }

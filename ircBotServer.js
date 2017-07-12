@@ -1,20 +1,21 @@
 /**
  * Created by simhr on 09.07.17.
  */
-module.exports = IRC;
+module.exports = IRCBotServer;
 
 const _str = require('underscore.string');
 const net = require('net');
 const q = require('q');
+const IRC = require('./irc');
 
-function IRC(config, robotLoader) {
-  this.robotLoader = robotLoader;
+function IRCBotServer(config, botLoader) {
+  this.botLoader = botLoader;
   this.config = config;
   this._sockets = [];
   this._intervals = [];
 }
 
-IRC.prototype.stop = function() {
+IRCBotServer.prototype.stop = function() {
   this._intervals.forEach(function(interval) {
     clearInterval(interval);
   });
@@ -24,7 +25,7 @@ IRC.prototype.stop = function() {
   });
 };
 
-IRC.prototype._connect = function(bot) {
+IRCBotServer.prototype._connect = function(bot) {
   var socket = net.Socket();
 
   socket.on('error', function(error) {
@@ -34,7 +35,7 @@ IRC.prototype._connect = function(bot) {
   return socket.connect(this.config.port, this.config.server);
 };
 
-IRC.prototype._register = function(socket, bot) {
+IRCBotServer.prototype._register = function(socket, bot) {
   var self = this;
   var deferred = q.defer();
   if(bot.hasOwnProperty('password'))
@@ -62,17 +63,17 @@ IRC.prototype._register = function(socket, bot) {
   return deferred.promise;
 };
 
-IRC.prototype._join = function(socket, bot) {
+IRCBotServer.prototype._join = function(socket, bot) {
   socket.write('JOIN ' + bot.channel + '\r\n');
   bot.joined = true;
 };
 
-IRC.prototype.start = function() {
+IRCBotServer.prototype.start = function() {
   var self = this;
 
   // one socket per bot
   console.log('Connecting all IRC bots');
-  self.robotLoader.getBots().forEach(function(bot) {
+  self.botLoader.getBots().forEach(function(bot) {
     console.log(bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
     var socket = self._connect(bot);
     // TODO check if connection could be established
@@ -90,18 +91,18 @@ IRC.prototype.start = function() {
           return;
 
         if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
-          bot.onJoinAction(socket, msgInfo.nickname, msgInfo.message);
+          bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
 
         if(msgInfo.command === 'PART' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
-          bot.onPartAction(socket, msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+          bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
 
         if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
-          bot.onMessageAction(socket, msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+          bot.onMessageAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
       });
 
       self._intervals.push(setInterval(function() {
         if(bot.hasOwnProperty('onIntervalAction'))
-          bot.onIntervalAction(socket, bot.channel, new Date());
+          bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
       }, self.config.interval));
     });
   });
