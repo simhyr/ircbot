@@ -71,7 +71,8 @@ IRCBotServer.prototype._register = function(socket, bot) {
   socket.on('data', function(data) {
     var message = data.toString();
     // register ping/pong handler
-    if (_str.contains(message, 'PING')) {
+    if (_str.startsWith(message, 'PING')) {
+      console.log('PING message=' + message);
       var check = _str.strRightBack(message, ':');
       socket.write('PONG :' + check + '\r\n');
 
