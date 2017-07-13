@@ -1,61 +1,66 @@
 /**
- * Created by simhr on 09.07.17.
+ * Created by simhr on 13.07.17.
  */
 const _str = require('underscore.string');
 const msg = require('../utility/messages');
 
-var onceBye = false;
-var onceHello = false;
+module.exports = AfSimon;
 
-const redirectRecvNick = 'simon';
-const byes = ['ciao', 'bye', 'nice day', 'good evening', 'cya', 'see you'];
-const hellos = ['hello', 'good morning', 'hi', 'hey'];
+function AfSimon() {
+  this.nickname = 'simonIRCBot';
+  this.channel = '#support';
 
-module.exports = {
-  // required properties
-  nickname: 'simonIRCbot',
-  channel: '#mychannel',
+  this.onJoinAction = onJoinAction;
+  this.onPartAction = onPartAction;
+  this.onMessageAction = onMessageAction;
+  this.onIntervalAction = onIntervalAction;
 
-  // optional properties
-  //password: 'abcdef',
+  // custom initialization
+  this._onceHello = false;
+  this._onceBye = false;
+  this._redirectNick = 'simon';
 
-  onJoinAction: function(irc, nickname, channel) {
-    irc.write('Hello ' + _str.humanize(nickname) + '! Welcome to ' + channel + '-channel ;-)');
-  },
+  this._byes = ['tschüss', 'ciao', 'schönen abend', 'guten abend', 'feierabend', 'bye'];
+  this._hellos = ['hallo', 'guten morgen', 'schönen morgen', 'hi', 'hey'];
+}
 
-  onPartAction: function(irc, nickname, channel, message) {
-    // nickname just left channel
-  },
+function onJoinAction(irc, sender, channel) {
+  irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
+}
 
-  // nickname = sender of message, recipient = receiver of message
-  onMessageAction: function(irc, nickname, recipient, message) {
-    if(nickname !== redirectRecvNick)
-      irc.redirectTo(message, redirectRecvNick, nickname);
+function onPartAction(irc, sender, channel, message) {
+  // nickname just left channel
+}
 
-    // recipient may be a channel or own name
-    var to = (recipient === 'simonIRCbot') ? nickname : recipient;
+function onMessageAction(irc, sender, recipient, message) {
+  // redirect all messages that i did not send to my nick
+  if(sender !== this._redirectNick)
+    irc.redirectTo(message, this._redirectNick, sender);
 
-    if(msg.hasMatches(hellos, message))
-      irc.write('Hello '+ _str.humanize(nickname) +' ;-)', to);
+  // recipient may be a channel or own name
+  var to = (recipient === this.nickname) ? sender : recipient;
+  var time = new Date();
 
-    if (msg.hasMatches(byes, message))
-      irc.write('Bye '+ _str.humanize(nickname) +'. Have a nice day :-)', to);
-  },
+  if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
+    irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
-  onIntervalAction: function(irc, channel, dateTime) {
-    /*if(!onceHello && dateTime.getHours() < 9) {
-      irc.write('Guten Morgen zusammen :-)');
-      onceHello = true;
-    }
+  if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
+    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);
+}
 
-    if(!onceBye && dateTime.getHours() > 17) {
-      var isFriday = (dateTime.getDay() === 5);
-
-      var message = (isFriday) ? 'Ich wünsche euch allen einen schönen Feierabend und ein schönes Wochenende!'
-        : 'Ich wünsche euch allen einen schönen Feierabend!';
-
-      irc.write(message, channel);
-      onceBye = true;
-    }*/
+function onIntervalAction(irc, channel, dateTime) {
+  if(!this._onceHello && dateTime.getHours() < 9) {
+    irc.write('Guten Morgen zusammen :-)');
+    this._onceHello = true;
   }
-};
+
+  if(!this._onceBye && dateTime.getHours() > 17) {
+    var isFriday = (dateTime.getDay() === 5);
+
+    var message = (isFriday) ? 'Ich wünsche euch allen einen schönen Feierabend und ein schönes Wochenende!'
+      : 'Ich wünsche euch allen einen schönen Feierabend!';
+
+    irc.write(message, channel);
+    this._onceBye = true;
+  }
+}

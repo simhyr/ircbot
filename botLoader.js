@@ -37,7 +37,8 @@ BotLoader.prototype.init = function(){
   files.forEach(function(file) {
     var filePath = path.join(__dirname, self._directory, file);
     console.log('Loading ' + filePath);
-    self._bots.push(require(filePath));
+    // bot constructor call
+    self._bots.push(new (require(filePath)));
   });
 
   self._bots = self._bots.filter(isValidBot);
