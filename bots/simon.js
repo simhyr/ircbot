@@ -7,8 +7,8 @@ const msg = require('../utility/messages');
 module.exports = AfSimon;
 
 function AfSimon() {
-  this.nickname = 'simonIRCBot';
-  this.channel = '#support';
+  this.nickname = 'sh23';
+  this.channel = '#linuxmint-help';
 
   this.onJoinAction = onJoinAction;
   this.onPartAction = onPartAction;
@@ -18,14 +18,14 @@ function AfSimon() {
   // custom initialization
   this._onceHello = false;
   this._onceBye = false;
-  this._redirectNick = 'simon';
+  this._redirectNick = 'simhr';
 
   this._byes = ['tschüss', 'ciao', 'schönen abend', 'guten abend', 'feierabend', 'bye'];
   this._hellos = ['hallo', 'guten morgen', 'schönen morgen', 'hi', 'hey'];
 }
 
 function onJoinAction(irc, sender, channel) {
-  irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
+  //irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
 }
 
 function onPartAction(irc, sender, channel, message) {
@@ -41,15 +41,16 @@ function onMessageAction(irc, sender, recipient, message) {
   var to = (recipient === this.nickname) ? sender : recipient;
   var time = new Date();
 
+  /*
   if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
     irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
   if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
-    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);
+    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);*/
 }
 
 function onIntervalAction(irc, channel, dateTime) {
-  if(!this._onceHello && dateTime.getHours() < 9) {
+  /*if(!this._onceHello && dateTime.getHours() < 9) {
     irc.write('Guten Morgen zusammen :-)');
     this._onceHello = true;
   }
@@ -62,5 +63,5 @@ function onIntervalAction(irc, channel, dateTime) {
 
     irc.write(message, channel);
     this._onceBye = true;
-  }
+  }*/
 }
