@@ -36,7 +36,27 @@ function onPartAction(irc, sender, message) {
     irc.redirectTo('just left ' + this.channel, this._redirectNick, sender);
 }
 
+function timeAction(args, irc, sender) {
+  var timeout = parseInt(args);
+  if(!timeout || isNaN(timeout))
+    return;
+
+  setTimeout(function() {
+    irc.write(sender + ', dein Timer ist abgelaufen!');
+  }, timeout)
+}
+
 function onMessageAction(irc, sender, recipient, message) {
+  const regex = /!([a-z]+)[ ](.*)/gi;
+  var match = regex.exec(message);
+  if(match && match.length === 3) {
+    var command = match[1];
+    var args = match[2];
+
+    if(command.toLowerCase() === 'timer')
+      timeAction(args, irc, sender);
+  }
+
   // redirect all messages that i did not send to my nick
   if(sender !== this._redirectNick)
     irc.redirectTo(message, this._redirectNick, sender);
@@ -45,16 +65,15 @@ function onMessageAction(irc, sender, recipient, message) {
   var to = (recipient === this.nickname) ? sender : recipient;
   var time = new Date();
 
-  /*
   if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
     irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
   if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
-    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);*/
+    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);
 }
 
 function onIntervalAction(irc, channel, dateTime) {
-  /*if(!this._onceHello && dateTime.getHours() < 9) {
+  if(!this._onceHello && dateTime.getHours() < 9) {
     irc.write('Guten Morgen zusammen :-)');
     this._onceHello = true;
   }
@@ -67,5 +86,5 @@ function onIntervalAction(irc, channel, dateTime) {
 
     irc.write(message, channel);
     this._onceBye = true;
-  }*/
+  }
 }
