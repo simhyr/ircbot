@@ -37,11 +37,12 @@ BotLoader.prototype.init = function(){
   files.forEach(function(file) {
     var filePath = path.join(__dirname, self._directory, file);
     console.log('Loading ' + filePath);
+    var bot = new (require(filePath));
     // bot constructor call
-    self._bots.push(new (require(filePath)));
+    if(isValidBot(bot))
+      self._bots.push(bot);
   });
 
-  self._bots = self._bots.filter(isValidBot);
   if(self._bots.length === 0) {
     console.log('ERROR: No valid IRC bot found.');
     return false;

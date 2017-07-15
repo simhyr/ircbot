@@ -6,6 +6,7 @@ module.exports = {
   server: 'irc.spotchat.org',
   port: 6667,
   botDirectory: 'bots',
+  cmdDirectory: 'commands',
   hiddenChar: '_',
   interval: 1000
 };

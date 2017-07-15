@@ -8,9 +8,10 @@ const net = require('net');
 const q = require('q');
 const IRC = require('./irc');
 
-function IRCBotServer(config, botLoader) {
-  this.botLoader = botLoader;
+function IRCBotServer(config, botLoader, cmdLoader) {
   this.config = config;
+  this.botLoader = botLoader;
+  this.cmdLoader = cmdLoader;
   this._sockets = [];
   this._intervals = [];
 }
@@ -157,6 +158,9 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
       if(!msgInfo)
         return;
 
+      if(bot.enableCmds)
+         self.cmdLoader.tryActivateCmd(new IRC(socket, bot), bot, msgInfo.nickname, msgInfo.message);
+
       // other nick has joined the channel
       if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
         bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
@@ -187,7 +191,7 @@ function parseIRCMessage(message) {
   message = _str.trim(message);
   // :<botname>!<botname@botaddress> <command> <parameterlist>:<message>
   //(?:) => does not form a capture group to not include ' ' into group
-  const regex = /:(.+)!(\S*)[ ]([a-z]+)[ ](?:(\S+)[ ]){0,1}:(.*)/ig;
+  const regex = /:(.+)!(\S*)[ ]([a-z]+)[ ](?:(\S+)[ ]){0,1}:(.*)/i;
   var match = regex.exec(message);
   if(!match || match.length !== 6)
     return;

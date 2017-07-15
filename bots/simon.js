@@ -9,6 +9,7 @@ module.exports = AfSimon;
 function AfSimon() {
   this.nickname = 'simonIRCBot';
   this.channel = '#support';
+  this.enableCmds = true;
 
   this.onJoinAction = onJoinAction;
   this.onPartAction = onPartAction;
@@ -36,33 +37,7 @@ function onPartAction(irc, sender, message) {
     irc.redirectTo('just left ' + this.channel, this._redirectNick, sender);
 }
 
-function cmdTimerAction(args, irc, sender) {
-  var timeout = parseInt(args);
-  if(!timeout || isNaN(timeout))
-    return;
-
-  setTimeout(function() {
-    irc.write(_str.humanize(sender) + ', dein Timer ist abgelaufen!');
-  }, timeout)
-}
-
-function cmdSayAction(args, irc) {
-  irc.write(args);
-}
-
 function onMessageAction(irc, sender, recipient, message) {
-  const regex = /!([a-z]+)[ ](.*)/gi;
-  var match = regex.exec(message);
-  if(match && match.length === 3) {
-    var command = match[1];
-    var args = match[2];
-
-    if(command.toLowerCase() === 'timer')
-      cmdTimerAction(args, irc, sender);
-    if(command.toLowerCase() === 'say')
-      cmdSayAction(args, irc);
-  }
-
   // redirect all messages that i did not send to my nick
   if(sender !== this._redirectNick)
     irc.redirectTo(message, this._redirectNick, sender);

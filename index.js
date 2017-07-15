@@ -22,8 +22,15 @@ function registerExitHandlers(irc) {
     return;
   }
 
+  var cmdLoader = new (require('./cmdLoader'))(config.cmdDirectory, config.hiddenChar);
+  console.log('Loading all IRC commands...');
+  if(!cmdLoader.init()) {
+    console.log('Loading IRC commands failed.');
+    return;
+  }
+
   console.log('Initializing IRCBotServer...');
-  var ircBotServer = new (require('./ircBotServer'))(config, botLoader);
+  var ircBotServer = new (require('./ircBotServer'))(config, botLoader, cmdLoader);
   if(!ircBotServer.init()) {
     console.log('Initialization of IRCBotServer failed.');
     return;
