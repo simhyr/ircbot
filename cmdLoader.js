@@ -40,7 +40,6 @@ CmdLoader.prototype.init = function() {
   return true;
 };
 
-
 CmdLoader.prototype.tryActivateCmd = function(irc, bot, sender, message) {
   this._cmds.forEach(function(cmd) {
     var match = cmd.regex.exec(message);
