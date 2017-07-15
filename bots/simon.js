@@ -26,10 +26,14 @@ function AfSimon() {
 
 function onJoinAction(irc, sender, channel) {
   //irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
+  if(sender !== this._redirectNick)
+    irc.redirectTo('just joined ' + channel, this._redirectNick, sender);
 }
 
-function onPartAction(irc, sender, channel, message) {
-  // nickname just left channel
+// left the channel or client exited
+function onPartAction(irc, sender, message) {
+  if(sender !== this._redirectNick)
+    irc.redirectTo('just left ' + this.channel, this._redirectNick, sender);
 }
 
 function onMessageAction(irc, sender, recipient, message) {

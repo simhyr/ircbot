@@ -13,7 +13,6 @@ function IRCBotServer(config, botLoader) {
   this.config = config;
   this._sockets = [];
   this._intervals = [];
-  this._retryJoinMax = 15;
 }
 
 IRCBotServer.prototype.init = function() {
@@ -163,8 +162,10 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
         bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
 
       // other nick has left the channel
-      if(msgInfo.command === 'PART' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
-        bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+      // case part: channel is set as cmdargs
+      // case quit: no channel is set
+      if((msgInfo.command === 'PART' || msgInfo.command === 'QUIT') && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
+        bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
 
       // a message was received (either in channel or as private message)
       if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
