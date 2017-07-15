@@ -10,7 +10,7 @@ module.exports = {
       return false;
 
     return array.some(function(entry, index, array) {
-      return _str(message).toLowerCase().contains(entry);
+      return _str(message).toLowerCase().contains(entry.toLowerCase());
     });
   }
 };

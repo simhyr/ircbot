@@ -7,8 +7,8 @@ const msg = require('../utility/messages');
 module.exports = AfSimon;
 
 function AfSimon() {
-  this.nickname = 'sh23';
-  this.channel = '#linuxmint-help';
+  this.nickname = 'simonIRCBot';
+  this.channel = '#support';
 
   this.onJoinAction = onJoinAction;
   this.onPartAction = onPartAction;
@@ -18,7 +18,7 @@ function AfSimon() {
   // custom initialization
   this._onceHello = false;
   this._onceBye = false;
-  this._redirectNick = 'simhr';
+  this._redirectNick = 'simon';
 
   this._byes = ['tschüss', 'ciao', 'schönen abend', 'guten abend', 'feierabend', 'bye'];
   this._hellos = ['hallo', 'guten morgen', 'schönen morgen', 'hi', 'hey'];
@@ -36,14 +36,18 @@ function onPartAction(irc, sender, message) {
     irc.redirectTo('just left ' + this.channel, this._redirectNick, sender);
 }
 
-function timeAction(args, irc, sender) {
+function cmdTimerAction(args, irc, sender) {
   var timeout = parseInt(args);
   if(!timeout || isNaN(timeout))
     return;
 
   setTimeout(function() {
-    irc.write(sender + ', dein Timer ist abgelaufen!');
+    irc.write(_str.humanize(sender) + ', dein Timer ist abgelaufen!');
   }, timeout)
+}
+
+function cmdSayAction(args, irc) {
+  irc.write(args);
 }
 
 function onMessageAction(irc, sender, recipient, message) {
@@ -54,7 +58,9 @@ function onMessageAction(irc, sender, recipient, message) {
     var args = match[2];
 
     if(command.toLowerCase() === 'timer')
-      timeAction(args, irc, sender);
+      cmdTimerAction(args, irc, sender);
+    if(command.toLowerCase() === 'say')
+      cmdSayAction(args, irc);
   }
 
   // redirect all messages that i did not send to my nick
