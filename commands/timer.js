@@ -9,6 +9,6 @@ module.exports = {
 
     setTimeout(function() {
       irc.write(_str.humanize(sender) + ', dein Timer ist abgelaufen!');
-    }, timeout)
+    }, timeout);
   }
 };
