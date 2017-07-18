@@ -114,12 +114,21 @@ IRCBotServer.prototype._join = function(socket, bot) {
     deferred.reject();
   }, this.config.srvRespTimeout);
 
+  const RPL_NAMREPLY = 353;
+  const RPL_TOPIC = 332;
   socket.on('data', function(data) {
     var message = data.toString();
+    // server responds with status code
+    if(_str(message).contains(RPL_NAMREPLY) || _str(message).contains(RPL_TOPIC)) {
+      clearTimeout(timeout);
+      deferred.resolve();
+    }
+
     var msgInfo = parseIRCMessage(message);
     if(!msgInfo)
       return;
 
+    // server responds with join message
     if(msgInfo.nickname.toLowerCase() === bot.nickname.toLowerCase() && msgInfo.command === 'JOIN'
       && msgInfo.message.toLowerCase() === bot.channel.toLowerCase()) {
       clearTimeout(timeout);
@@ -163,27 +172,27 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
         return;
 
       if(bot.enableCmds)
-         self.cmdLoader.tryActivateCmd(new IRC(socket, bot), bot, msgInfo.nickname, msgInfo.message);
+         self.cmdLoader.tryActivateCmd(new IRC(self.config, socket, bot), bot, msgInfo.nickname, msgInfo.message);
 
       // other nick has joined the channel
       if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
-        bot.onJoinAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
+        bot.onJoinAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.message);
 
       // other nick has left the channel
       // case part: channel is set as cmdargs
       // case quit: no channel is set
       if((msgInfo.command === 'PART' || msgInfo.command === 'QUIT') && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
-        bot.onPartAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.message);
+        bot.onPartAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.message);
 
       // a message was received (either in channel or as private message)
       if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
-        bot.onMessageAction(new IRC(socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+        bot.onMessageAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
     });
 
     // interval action
     self._intervals.push(setInterval(function() {
       if(bot.hasOwnProperty('onIntervalAction'))
-        bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
+        bot.onIntervalAction(new IRC(self.config, socket, bot), bot.channel, new Date());
     }, self.config.interval));
   }, function(socket) {
     console.log('>> ' + bot.nickname + ' failed to join ' + bot.channel);

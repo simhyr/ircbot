@@ -2,6 +2,8 @@
  * Created by simhr on 13.07.17.
  */
 const _str = require('underscore.string');
+const fs = require('fs');
+const path = require('path');
 const msg = require('../../utility/messages');
 
 module.exports = AfSimon;
@@ -9,8 +11,10 @@ module.exports = AfSimon;
 function AfSimon() {
   this.nickname = 'simonIRCBot';
   this.channel = '#support';
-  this.enableCmds = true;
 
+  // optional properties
+  this.enableCmds = true;
+  this.owner = 'simon';
   this.onJoinAction = onJoinAction;
   this.onPartAction = onPartAction;
   this.onMessageAction = onMessageAction;
@@ -19,28 +23,28 @@ function AfSimon() {
   // custom initialization
   this._onceHello = false;
   this._onceBye = false;
-  this._redirectNick = 'simon';
 
-  this._byes = ['tschüss', 'ciao', 'schönen abend', 'guten abend', 'feierabend', 'bye'];
-  this._hellos = ['hallo', 'guten morgen', 'schönen morgen', 'hi', 'hey'];
+  this._byes = msg.readFileAsArray(path.join(__dirname, 'byes.txt'));
+  this._hellos = msg.readFileAsArray(path.join(__dirname, 'hellos.txt'));
 }
 
 function onJoinAction(irc, sender, channel) {
-  //irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
-  if(sender !== this._redirectNick)
-    irc.redirectTo('just joined ' + channel, this._redirectNick, sender);
+  irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
 }
 
 // left the channel or client exited
 function onPartAction(irc, sender, message) {
-  if(sender !== this._redirectNick)
-    irc.redirectTo('just left ' + this.channel, this._redirectNick, sender);
+  //if(sender !== this.owner)
+    //irc.redirectTo('just left ' + this.channel, this.owner, sender);
 }
 
 function onMessageAction(irc, sender, recipient, message) {
+  if(_str(message).startsWith('@'))
+    return;
+
   // redirect all messages that i did not send to my nick
-  if(sender !== this._redirectNick)
-    irc.redirectTo(message, this._redirectNick, sender);
+  if(sender !== this.owner)
+    irc.redirectTo(message, this.owner, sender);
 
   // recipient may be a channel or own name
   var to = (recipient === this.nickname) ? sender : recipient;

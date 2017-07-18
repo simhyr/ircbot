@@ -3,10 +3,15 @@
  */
 module.exports = IRC;
 
-function IRC(socket, bot){
+function IRC(config, socket, bot){
   this._socket = socket;
   this._bot = bot;
+  this._config = config;
 }
+
+IRC.prototype.getConfig = function() {
+  return this._config;
+};
 
 IRC.prototype.write = function(message, recipient) {
   recipient = recipient || this._bot.channel;
