@@ -31,7 +31,7 @@ CmdLoader.prototype.init = function() {
 
   files.forEach(function(file) {
     var filePath = path.join(__dirname, self._directory, file);
-    console.log('Loading ' + filePath);
+    console.log('>> Loading ' + filePath);
     var cmd = require(filePath);
     if(isValidCmd(cmd))
       self._cmds.push(cmd);

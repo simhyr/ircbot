@@ -89,7 +89,7 @@ IRCBotServer.prototype._register = function(socket, bot) {
 
   var timeout = setTimeout(function() {
     deferred.reject();
-  }, 10000);
+  }, self.config.srvRespTimeout);
 
   // welcome message on success
   var RPL_WELCOME = '001';
@@ -112,12 +112,16 @@ IRCBotServer.prototype._join = function(socket, bot) {
 
   var timeout = setTimeout(function() {
     deferred.reject();
-  }, 10000);
+  }, this.config.srvRespTimeout);
 
   socket.on('data', function(data) {
     var message = data.toString();
+    var msgInfo = parseIRCMessage(message);
+    if(!msgInfo)
+      return;
 
-    if(_str(message).contains(bot.nickname + ' = ' + bot.channel + ' ')) {
+    if(msgInfo.nickname.toLowerCase() === bot.nickname.toLowerCase() && msgInfo.command === 'JOIN'
+      && msgInfo.message.toLowerCase() === bot.channel.toLowerCase()) {
       clearTimeout(timeout);
       deferred.resolve();
     }
@@ -131,13 +135,13 @@ IRCBotServer.prototype.start = function() {
 
   console.log('Connecting all IRC bots');
   self.botLoader.getBots().forEach(function(bot) {
-    console.log(bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
+    console.log('>> ' + bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
     self._connect(bot).then(function(socket) {
-      console.log(bot.nickname + ' connected');
+      console.log('>> ' + bot.nickname + ' connected');
       self._sockets.push(socket);
       self._afterConnectAction(socket, bot);
     }, function() {
-      console.log('Connection failed.');
+      console.log('>> ' + bot.nickname + ' failed to connect');
     });
   });
 };
@@ -145,13 +149,13 @@ IRCBotServer.prototype.start = function() {
 IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
   var self = this;
 
-  console.log('Register ' + bot.nickname);
+  console.log('>> Register ' + bot.nickname);
   this._register(socket, bot).then(function() {
-    console.log('Registration completed.');
-    console.log(bot.nickname + ' is trying to join ' + bot.channel);
+    console.log('>> Registration completed');
+    console.log('>> ' + bot.nickname + ' is trying to join ' + bot.channel);
     return self._join(socket, bot);
   }).then(function () {
-    console.log(bot.nickname + ' joined ' + bot.channel);
+    console.log('>> ' + bot.nickname + ' joined ' + bot.channel);
 
     socket.on('data', function (data) {
       var msgInfo = parseIRCMessage(data.toString());
@@ -182,7 +186,7 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
         bot.onIntervalAction(new IRC(socket, bot), bot.channel, new Date());
     }, self.config.interval));
   }, function(socket) {
-    console.log(bot.nickname + ' failed to join ' + bot.channel);
+    console.log('>> ' + bot.nickname + ' failed to join ' + bot.channel);
     socket.end();
   });
 };

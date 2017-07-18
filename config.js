@@ -8,5 +8,6 @@ module.exports = {
   botDirectory: 'bots',
   cmdDirectory: 'commands',
   hiddenChar: '_',
-  interval: 1000
+  interval: 1000,
+  srvRespTimeout: 60000
 };
