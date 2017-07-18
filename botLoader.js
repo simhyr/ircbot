@@ -25,9 +25,13 @@ BotLoader.prototype.init = function(){
     return false;
   }
 
-  var files = fs.readdirSync(self._directory, {encoding: 'utf8'});
-  if(self._hiddenChar)
-    files = files.filter(function(entry){return !_str.startsWith(entry, self._hiddenChar)});
+  var files = fs.readdirSync(self._directory, {encoding: 'utf8'}).filter(function(entry) {
+    var stats = fs.statSync(path.join(__dirname, self._directory, entry));
+    if(!self._hiddenChar)
+      return stats.isFile();
+
+    return !_str.startsWith(entry, self._hiddenChar) && stats.isFile();
+  });
 
   if(files.length === 0) {
     console.log('ERROR: No IRC bot located under \'' + self._directory + '\'.');

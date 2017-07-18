@@ -1,7 +1,7 @@
 const _str = require('underscore.string');
 
 module.exports = {
-  regex: /!reminder[ ](\d*)[ ](\d*)/i,
+  regex: /@reminder[ ](\d*)[ ](\d*)/i,
   cmdAction: function(irc, bot, sender, match) {
     var intervalCnt = parseInt(match.pop());
     var intervalTime = parseInt(match.pop());

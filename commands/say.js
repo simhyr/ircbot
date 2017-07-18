@@ -1,6 +1,6 @@
 module.exports = {
-  regex: /!say[ ](.*)/i,
+  regex: /@say[ ](.*)/i,
   cmdAction: function(irc, bot, sender, match) {
-    irc.write(match[match.length - 1]);
+    irc.write(match.pop());
   }
 };
