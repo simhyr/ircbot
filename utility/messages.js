@@ -18,6 +18,6 @@ module.exports = {
 
   readFileAsArray: function(filePath, separator) {
     separator = separator || '\n';
-    return fs.readFileSync(filePath, 'utf-8').split(separator);
+    return fs.readFileSync(filePath, 'utf8').split(separator);
   }
 };

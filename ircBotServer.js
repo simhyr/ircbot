@@ -94,10 +94,9 @@ IRCBotServer.prototype._register = function(socket, bot) {
   // welcome message on success
   var RPL_WELCOME = '001';
   socket.on('data', function(data) {
-    var message = data.toString();
-    self._pingFeedback(socket, message);
+    self._pingFeedback(socket, data);
 
-    if(_str(message).contains(RPL_WELCOME)) {
+    if(_str(data).contains(RPL_WELCOME)) {
       clearTimeout(timeout);
       deferred.resolve();
     }
@@ -117,14 +116,13 @@ IRCBotServer.prototype._join = function(socket, bot) {
   const RPL_NAMREPLY = 353;
   const RPL_TOPIC = 332;
   socket.on('data', function(data) {
-    var message = data.toString();
     // server responds with status code
-    if(_str(message).contains(RPL_NAMREPLY) || _str(message).contains(RPL_TOPIC)) {
+    if(_str(data).contains(RPL_NAMREPLY) || _str(data).contains(RPL_TOPIC)) {
       clearTimeout(timeout);
       deferred.resolve();
     }
 
-    var msgInfo = parseIRCMessage(message);
+    var msgInfo = parseIRCMessage(data);
     if(!msgInfo)
       return;
 
@@ -147,6 +145,7 @@ IRCBotServer.prototype.start = function() {
     console.log('>> ' + bot.nickname + ' connecting to ' + self.config.server + ':' + self.config.port);
     self._connect(bot).then(function(socket) {
       console.log('>> ' + bot.nickname + ' connected');
+      socket.setEncoding('utf8');
       self._sockets.push(socket);
       self._afterConnectAction(socket, bot);
     }, function() {
@@ -167,7 +166,7 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
     console.log('>> ' + bot.nickname + ' joined ' + bot.channel);
 
     socket.on('data', function (data) {
-      var msgInfo = parseIRCMessage(data.toString());
+      var msgInfo = parseIRCMessage(data);
       if(!msgInfo)
         return;
 
