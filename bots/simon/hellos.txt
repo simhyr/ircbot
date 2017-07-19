@@ -6,3 +6,6 @@ hey
 moin
 hiho
 salut
+hoi
+bonjour
+guten tag

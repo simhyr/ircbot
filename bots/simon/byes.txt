@@ -1,7 +1,24 @@
 ciao
 schönen abend
 guten abend
-feierabend
+schönen feierabend
+guten feierabend
 bye
 ariverderci
 tschüss
+schönen tag
+bis bald
+bis morgen
+bis montag
+bis dienstag
+bis mittwoch
+bis donnerstag
+bis freitag
+schönes wochenende
+entspanntes wochenende
+entspannten abend
+bis dann
+bis denne
+bis die tage
+bis zum nächsten mal
+adios
