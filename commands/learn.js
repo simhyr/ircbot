@@ -20,7 +20,7 @@ module.exports = {
     var config = irc.getConfig();
     var sentence = _str(match.pop()).trim().toLowerCase().value();
     var file = match.pop() + '.txt';
-    var filePath = path.join(config.botDirectory, sender, file);
+    var filePath = path.join(config.botDirectory, sender, 'learn', file);
     if(!fs.existsSync(filePath)) {
       console.log(filePath + ' existiert nicht!');
       return;

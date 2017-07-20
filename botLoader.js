@@ -6,6 +6,7 @@ module.exports = BotLoader;
 const fs = require('fs');
 const path = require('path');
 const _str = require('underscore.string');
+const _ = require('lodash');
 
 function isValidBot(bot) {
   return bot.hasOwnProperty('nickname') && bot.hasOwnProperty('channel');
@@ -20,7 +21,7 @@ function BotLoader(directory, hiddenChar) {
 BotLoader.prototype.init = function(){
   var self = this;
 
-  if(!self._directory || !(typeof self._directory === 'string' || self._directory instanceof String)) {
+  if(!self._directory || !_.isString(self._directory)) {
     console.log('ERROR: Failed to load bot directory');
     return false;
   }

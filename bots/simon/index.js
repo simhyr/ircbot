@@ -24,8 +24,8 @@ function AfSimon() {
   this._onceHello = false;
   this._onceBye = false;
 
-  this._byes = msg.readFileAsArray(path.join(__dirname, 'byes.txt'));
-  this._hellos = msg.readFileAsArray(path.join(__dirname, 'hellos.txt'));
+  this._byes = msg.readFileAsArray(path.join(__dirname, 'learn', 'byes.txt'));
+  this._hellos = msg.readFileAsArray(path.join(__dirname, 'learn', 'hellos.txt'));
 }
 
 function onJoinAction(irc, sender, channel) {
