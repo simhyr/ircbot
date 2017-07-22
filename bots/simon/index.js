@@ -15,15 +15,22 @@ function AfSimon() {
   // optional properties
   this.enableCmds = true;
   this.owner = 'simon';
+  this.onStartUpAction = onStartUpAction;
+  this.onInitAction = onInitAction;
   this.onJoinAction = onJoinAction;
   this.onPartAction = onPartAction;
   this.onMessageAction = onMessageAction;
   this.onIntervalAction = onIntervalAction;
+}
 
-  // custom initialization
+function onStartUpAction() {
+  // once on startup
   this._onceHello = false;
   this._onceBye = false;
+}
 
+// before every new message
+function onInitAction() {
   this._byes = msg.readFileAsArray(path.join(__dirname, 'learn', 'byes.txt'));
   this._hellos = msg.readFileAsArray(path.join(__dirname, 'learn', 'hellos.txt'));
 }
@@ -39,9 +46,6 @@ function onPartAction(irc, sender, message) {
 }
 
 function onMessageAction(irc, sender, recipient, message) {
-  if(_str(message).startsWith('@'))
-    return;
-
   // redirect all messages that i did not send to my nick
   if(sender !== this.owner)
     irc.redirectTo(message, this.owner, sender);
@@ -50,8 +54,7 @@ function onMessageAction(irc, sender, recipient, message) {
   var to = (recipient === this.nickname) ? sender : recipient;
   var time = new Date();
 
-  if(msg.hasMatches(this._hellos, message))
-  //if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
+  if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
     irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
   if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
@@ -59,12 +62,12 @@ function onMessageAction(irc, sender, recipient, message) {
 }
 
 function onIntervalAction(irc, channel, dateTime) {
-  if(!this._onceHello && dateTime.getHours() < 9) {
+  if(!this._onceHello && dateTime.getHours() <= 10) {
     irc.write('Guten Morgen zusammen :-)');
     this._onceHello = true;
   }
 
-  if(!this._onceBye && dateTime.getHours() >= 17) {
+  if(!this._onceBye && dateTime.getHours() >= 16 && dateTime.getMinutes() >= 45) {
     var isFriday = (dateTime.getDay() === 5);
 
     var message = (isFriday) ? 'Ich wünsche euch allen einen schönen Feierabend und ein schönes Wochenende!'

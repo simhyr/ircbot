@@ -170,8 +170,13 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
       if(!msgInfo)
         return;
 
-      if(bot.enableCmds)
-         self.cmdLoader.tryActivateCmd(new IRC(self.config, socket, bot), bot, msgInfo.nickname, msgInfo.message);
+      if(bot.hasOwnProperty('onInitAction'))
+        bot.onInitAction();
+
+      if(bot.enableCmds && msgInfo.message.startsWith('@')) {
+        self.cmdLoader.tryActivateCmd(new IRC(self.config, socket, bot), bot, msgInfo.nickname, msgInfo.message);
+        return;
+      }
 
       // other nick has joined the channel
       if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))

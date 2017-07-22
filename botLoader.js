@@ -44,8 +44,11 @@ BotLoader.prototype.init = function(){
     console.log('>> Loading ' + filePath);
     var bot = new (require(filePath));
     // bot constructor call
-    if(isValidBot(bot))
+    if(isValidBot(bot)) {
+      if(bot.hasOwnProperty('onStartUpAction'))
+        bot.onStartUpAction();
       self._bots.push(bot);
+    }
   });
 
   if(self._bots.length === 0) {
