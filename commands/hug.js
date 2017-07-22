@@ -23,8 +23,7 @@ module.exports = {
     });
 
     if(result.success) {
-      irc.write(bot.nickname + ' mag es von '+ _str.humanize(sender) + ' geknuddelt zu werden!');
-      irc.write(_str.humanize(sender) + ' hat nun ' + result.newValue + (result.newValue === '1' ? ' Pluspunkt.' : ' Pluspunkte.'));
+      irc.write(bot.nickname + ' fühlt sich geschmeichelt. ' +_str.humanize(sender) + ' hat nun ' + result.newValue + (result.newValue === '1' ? ' Pluspunkt gesammelt.' : ' Pluspunkte gesammelt.'));
     }
   }
 };

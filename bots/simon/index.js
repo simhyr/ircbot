@@ -50,7 +50,8 @@ function onMessageAction(irc, sender, recipient, message) {
   var to = (recipient === this.nickname) ? sender : recipient;
   var time = new Date();
 
-  if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
+  if(msg.hasMatches(this._hellos, message))
+  //if(time.getHours() <= 9 && time.getMinutes() <= 45 && msg.hasMatches(this._hellos, message))
     irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
   if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
@@ -63,7 +64,7 @@ function onIntervalAction(irc, channel, dateTime) {
     this._onceHello = true;
   }
 
-  if(!this._onceBye && dateTime.getHours() > 17) {
+  if(!this._onceBye && dateTime.getHours() >= 17) {
     var isFriday = (dateTime.getDay() === 5);
 
     var message = (isFriday) ? 'Ich wünsche euch allen einen schönen Feierabend und ein schönes Wochenende!'

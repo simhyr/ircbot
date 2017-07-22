@@ -12,8 +12,37 @@ module.exports = {
     if(!Array.isArray(array))
       return false;
 
-    return array.some(function(entry, index, array) {
-      return _str(message).toLowerCase().contains(entry.toLowerCase());
+    var msgSplit = message.split(' '); // [Hallo, wünsche, guten, morgen, zusammen]
+    return array.some(function(entry) {
+      var entrySplit = entry.split(' '); // [Guten, Morgen]
+
+      var lastIndex = null;
+      var result = true;
+      entrySplit.forEach(function(word) {
+        var curIdx = _.findIndex(msgSplit, function(e) {
+          return e.toLowerCase() === word.toLowerCase();
+        });
+
+        // word not found in message
+        if(curIdx < 0) {
+          result = false;
+          return;
+        }
+
+        // setup lastIndex in first iteration
+        if(!lastIndex) {
+          lastIndex = curIdx;
+          return;
+        }
+
+        // there must not be any word in between two or more matches
+        if(curIdx !== lastIndex + 1) {
+          result = false;
+          return;
+        }
+      });
+
+      return result;
     });
   },
 
