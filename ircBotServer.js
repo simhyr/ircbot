@@ -207,6 +207,7 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
 function parseIRCMessage(message) {
   message = _str.trim(message);
   // :<botname>!<botname@botaddress> <command> <parameterlist>:<message>
+
   //(?:) => does not form a capture group to not include ' ' into group
   const regex = /:(.+)!(\S*)[ ]([a-z]+)[ ](?:(\S+)[ ]){0,1}:(.*)/i;
   var match = regex.exec(message);

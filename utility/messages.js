@@ -12,6 +12,9 @@ module.exports = {
     if(!Array.isArray(array))
       return false;
 
+    var regex = /([^\w\d\sßäöü])/gi;
+    message = message.replace(regex, ' ');
+
     var msgSplit = message.split(' '); // [Hallo, wünsche, guten, morgen, zusammen]
     return array.some(function(entry) {
       var entrySplit = entry.split(' '); // [Guten, Morgen]
