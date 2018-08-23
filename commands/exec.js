@@ -1,10 +1,4 @@
-/**
- * Created by simhr on 19.07.17.
- */
-const path = require('path');
-const fs = require('fs');
 const _str = require('underscore.string');
-const msg = require('../utility/messages');
 const _ = require('lodash');
 
 function exec(strFnc, irc, sender) {
