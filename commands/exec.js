@@ -2,8 +2,8 @@ const _str = require('underscore.string');
 const _ = require('lodash');
 
 function exec(strFnc, irc, sender) {
-    let fnc = Function('irc', 'sender', strFnc);
-    return fnc.call(null, irc, sender);
+    let fnc = Function('irc', 'sender', '_', '_str', strFnc);
+    return fnc.call(null, irc, sender, _, _str);
 }
 
 function tryExecFunction(strFnc, irc, sender) {

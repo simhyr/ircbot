@@ -1,0 +1,1 @@
+@exec const str = 'Einen wunderschönen guten Morgen zusammen!'; const len = 15; const offset = 4; const maxOffset = (len - 1) * offset; const char = ' '; const half = Math.floor(len / 2); for(var i = 0; i < len; i++) { var iOffset = offset * i; irc.write((i < half) ? _.padStart(str, str.length + iOffset, char) : _.padStart(str, str.length + maxOffset - iOffset, char));}
