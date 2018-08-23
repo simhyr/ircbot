@@ -1,2 +1,3 @@
 Initiale "Wer wird Millionär"-Datenbank von https://m.iszene.com/thread-15403-page-8.html
 
+http://www.sqlitetutorial.net/sqlite-nodejs/connect/
