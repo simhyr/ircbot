@@ -30,7 +30,6 @@ function tryExecFunction(strFnc, irc, sender) {
     }
 }
 
-
 module.exports = {
   regex: /@exec\s(.*)/i,
   cmdAction: function(irc, bot, sender, match) {
