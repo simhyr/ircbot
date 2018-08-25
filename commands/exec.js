@@ -1,7 +1,9 @@
 const _str = require('underscore.string');
 const _ = require('lodash');
 
-var customScope = {};
+var customScope = {
+    printScope: () => JSON.stringify(_.keys(customScope))
+};
 
 function exec(strFnc, irc, sender) {
     let fnc = Function('irc', 'sender', '_', '_str', strFnc);
