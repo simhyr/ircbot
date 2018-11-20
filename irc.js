@@ -18,6 +18,16 @@ IRC.prototype.write = function(message, recipient) {
   this._socket.write('PRIVMSG ' + recipient + ' :' + message + '\r\n');
 };
 
+IRC.prototype.getChannelMembers = function() {
+	// TODO socket write and read
+}
+
+IRC.prototype.me = function(message) {
+  // TODO
+  var escape = String.fromCharCode(1);
+  this.write(escape + 'ACTION ' + message + escape);
+}
+
 IRC.prototype.redirectTo = function(message, recipient, sender) {
   message = (sender) ? sender + ': ' + message : message;
   this.write(message, recipient);

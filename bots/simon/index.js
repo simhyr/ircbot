@@ -10,7 +10,7 @@ module.exports = AfSimon;
 
 function AfSimon() {
   this.nickname = 'simonIRCBot';
-  this.channel = '#bottest';
+  this.channel = '#support';
 
   // optional properties
   this.enableCmds = true;
@@ -31,12 +31,12 @@ function onStartUpAction() {
 
 // before every new message
 function onInitAction() {
-  this._byes = msg.readFileAsArray(path.join(__dirname, 'learn', 'byes.txt'));
-  this._hellos = msg.readFileAsArray(path.join(__dirname, 'learn', 'hellos.txt'));
+  //this._byes = msg.readFileAsArray(path.join(__dirname, 'learn', 'byes.txt'));
+  //this._hellos = msg.readFileAsArray(path.join(__dirname, 'learn', 'hellos.txt'));
 }
 
 function onJoinAction(irc, sender, channel) {
-  irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
+  //irc.write('Hallo ' + _str.humanize(sender) + '! Wilkommen im ' + channel + '-Channel ;-)');
 }
 
 // left the channel or client exited
@@ -47,7 +47,7 @@ function onPartAction(irc, sender, message) {
 
 function onMessageAction(irc, sender, recipient, message) {
   // redirect all messages that i did not send to my nick
-  if(sender !== this.owner)
+  /*if(sender !== this.owner)
     irc.redirectTo(message, this.owner, sender);
 
   // recipient may be a channel or own name
@@ -58,11 +58,11 @@ function onMessageAction(irc, sender, recipient, message) {
     irc.write('Guten Morgen '+ _str.humanize(sender) +' ;-)', to);
 
   if (time.getHours() >= 16 && msg.hasMatches(this._byes, message))
-    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);
+    irc.write('Ciao und einen schönen Feierabend '+ _str.humanize(sender) +' :-)', to);*/
 }
 
 function onIntervalAction(irc, channel, dateTime) {
-  if(!this._onceHello && dateTime.getHours() <= 10) {
+  /*if(!this._onceHello && dateTime.getHours() <= 10) {
     irc.write('Guten Morgen zusammen :-)');
     this._onceHello = true;
   }
@@ -75,5 +75,5 @@ function onIntervalAction(irc, channel, dateTime) {
 
     irc.write(message, channel);
     this._onceBye = true;
-  }
+  }*/
 }
