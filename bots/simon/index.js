@@ -10,7 +10,8 @@ module.exports = AfSimon;
 
 function AfSimon() {
   this.nickname = 'simonIRCBot';
-  this.channel = '#bottest';
+  this.channel = '#support';
+  // this.channel = '#bottest';
 
   // optional properties
   this.enableCmds = true;
