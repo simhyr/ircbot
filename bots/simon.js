@@ -10,15 +10,15 @@ var IRCBotBaseClass = require('./_base');
 module.exports = class SimonIRCBot extends IRCBotBaseClass {
     constructor() {
         // command prefix
-        super('@');
+        super();
 
         this.nickname = 'simonIRCBot';
-        //this.channel = '#support';
-        this.channel = '#bottest';
+        this.channel = '#support';
+        //this.channel = '#bottest';
       
         // optional properties
         // this.enableCmds = true;
-        this.owner = 'simhr';
+        this.owner = 'simon';
     }
 
     onStartUpAction() {
