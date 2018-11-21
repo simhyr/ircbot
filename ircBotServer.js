@@ -8,10 +8,9 @@ const net = require('net');
 const q = require('q');
 const IRC = require('./irc');
 
-function IRCBotServer(config, botLoader, cmdLoader) {
+function IRCBotServer(config, botLoader) {
   this.config = config;
   this.botLoader = botLoader;
-  this.cmdLoader = cmdLoader;
   this._sockets = [];
   this._intervals = [];
 }
@@ -81,7 +80,7 @@ IRCBotServer.prototype._pingFeedback = function(socket, message) {
 IRCBotServer.prototype._register = function(socket, bot) {
   var self = this;
   var deferred = q.defer();
-  if(bot.hasOwnProperty('password'))
+  if('password' in bot)
     socket.write('PASS ' + bot.password + '\r\n');
 
   socket.write('NICK ' + bot.nickname + '\r\n');
@@ -170,33 +169,29 @@ IRCBotServer.prototype._afterConnectAction = function(socket, bot) {
       if(!msgInfo)
         return;
 
-      if(bot.hasOwnProperty('onInitAction'))
+      if('onInitAction' in bot)
         bot.onInitAction();
 
-      if(bot.enableCmds && msgInfo.message.startsWith('@')) {
-        self.cmdLoader.tryActivateCmd(new IRC(self.config, socket, bot), bot, msgInfo.nickname, msgInfo.message);
-        return;
-      }
-
       // other nick has joined the channel
-      if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onJoinAction'))
+      if(msgInfo.command === 'JOIN' && msgInfo.nickname !== bot.nickname && 'onJoinAction' in bot)
         bot.onJoinAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.message);
 
       // other nick has left the channel
       // case part: channel is set as cmdargs
       // case quit: no channel is set
-      if((msgInfo.command === 'PART' || msgInfo.command === 'QUIT') && msgInfo.nickname !== bot.nickname && bot.hasOwnProperty('onPartAction'))
+      if((msgInfo.command === 'PART' || msgInfo.command === 'QUIT') && msgInfo.nickname !== bot.nickname && 'onPartAction' in bot)
         bot.onPartAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.message);
 
       // a message was received (either in channel or as private message)
-      if (msgInfo.command === 'PRIVMSG' && bot.hasOwnProperty('onMessageAction'))
-        bot.onMessageAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
+      if (msgInfo.command === 'PRIVMSG' && 'onBeforeMessageAction' in bot)
+        bot.onBeforeMessageAction(new IRC(self.config, socket, bot), msgInfo.nickname, msgInfo.cmdargs, msgInfo.message);
     });
+
+    if(!('onIntervalAction' in bot)) return;
 
     // interval action
     self._intervals.push(setInterval(function() {
-      if(bot.hasOwnProperty('onIntervalAction'))
-        bot.onIntervalAction(new IRC(self.config, socket, bot), bot.channel, new Date());
+      bot.onIntervalAction(new IRC(self.config, socket, bot), bot.channel, new Date());
     }, self.config.interval));
   }, function(socket) {
     console.log('>> ' + bot.nickname + ' failed to join ' + bot.channel);

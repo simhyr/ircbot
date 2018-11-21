@@ -4,7 +4,7 @@
 const fs = require('fs');
 const path = require('path');
 const _str = require('underscore.string');
-const msg = require('../utility/messages');
+const msg = require('../../utility/messages');
 
 module.exports = {
   regex: /@learn[ ](byes|hellos)(?:.txt){0,1}[ ](.*)/i,
@@ -17,10 +17,9 @@ module.exports = {
       return;
     }
 
-    var config = irc.getConfig();
     var sentence = _str(match.pop()).trim().toLowerCase().value();
     var file = match.pop() + '.txt';
-    var filePath = path.join(config.botDirectory, sender, 'learn', file);
+    var filePath = path.join('commands', bot.getCommandDirectoryName(), 'files', 'learn', file);
     if(!fs.existsSync(filePath)) {
       console.log(filePath + ' existiert nicht!');
       return;

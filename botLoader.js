@@ -9,7 +9,7 @@ const _str = require('underscore.string');
 const _ = require('lodash');
 
 function isValidBot(bot) {
-  return bot.hasOwnProperty('nickname') && bot.hasOwnProperty('channel');
+  return 'nickname' in bot && 'channel' in bot;
 }
 
 function BotLoader(directory, hiddenChar) {
@@ -45,8 +45,9 @@ BotLoader.prototype.init = function(){
     var bot = new (require(filePath));
     // bot constructor call
     if(isValidBot(bot)) {
-      if(bot.hasOwnProperty('onStartUpAction'))
+      if('onStartUpAction' in bot)
         bot.onStartUpAction();
+
       self._bots.push(bot);
     }
   });
