@@ -1,0 +1,91 @@
+Dokumentationen:
+
+JavaScript Tutorial: https://www.tutorialspoint.com/javascript/index.htm
+String-Manipulation: underscore.string https://epeli.github.io/underscore.string/
+Allgemeine Funktionen für den Umgang mit Arrays/Objekten etc: Lodash Dokumentation: https://lodash.com/docs
+NodeJS Dokumentation https://nodejs.org/dist/latest-v11.x/docs/api/
+
+0.) Client-Server Infrastuktur
+
+- Grafik (Verbindung über IP+Port)
+
+1.) Verbindung mit dem IRC Server
+
+- ArcFlow IRC-Service läuft auf dem Terminalserver mit der IP 10.8.2.5
+- Ein IRC-Service läuft standardmäßig auf dem Port 6667
+
+https://en.wikipedia.org/wiki/IRCd#Ports
+The officially assigned port numbers are 194 ("irc"), 529 ("irc-serv"), and 994 ("ircs").[20] However, these ports are in the privileged range (0-1024), which on a Unix-like system means that the daemon would historically have to have superuser privileges in order to open them. For various security reasons this used to be undesirable. 
+The common ports for an IRCd process are 6665 to 6669, with 6667 being the historical default.[21] These ports can be opened by a non-superuser process, and they became widely used. 
+
+https://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xhtml?search=irc
+
+
+2.) IRC Kommandos
+
+IRC Application Layer (abstraction to tcp sockets)
+TCP Session Layer (tcp sockets)
+...
+
+IRC Kommando als Beispiel: ‘PRIVMSG <recipient> :<message>\r\n’ → ‘PRIVMSG Rainer :Hallo Rainer!\r\n’
+
+3.) Standardisierte Funktionsweise des IRC-Protokolls: https://www.ietf.org/rfc/rfc1459.txt 
+
+Öffnen des TCP Sockets auf <IP>:<PORT>
+- Registrierung am IRC Server:
+
+
+
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+// Registrierung am IRC Server
+socket.write('NICK ' + bot.nickname + '\r\n');  
+socket.write('USER ' + bot.nickname + ' localhost ' + <server> + ' :'+self.nickname+'\r\n');
+socket.write('PASS ' + bot.password + '\r\n');
+
+// RPL_WELCOME mit Code 001 (Registrierung abgeschlossen)
+// ab hier antwort aller PING nachrichten mit einem korrespondierenden PONG
+socket.write('PONG :' + check + '\r\n');
+
+// JOIN des channels #support
+socket.write('JOIN ' + bot.channel + '\r\n');
+// Wenn JOIN erfolgreich dann antwort des servers mit RPL_NAMREPLY = 353 oder RPL_TOPIC = 332;
+
+// Ab hier ist der Connect/Join abgeschlossen
+Es wird ein Event aufgerufen, sobald eine Nachricht im IRC Chat geschrieben wird. 
+In diesem Event werden die entsprechenden Funktionen der Bots aufgerufen.
+
+// geparste IRC nnchricht
+return {
+nickname: match[1],
+nickaddress: match[2],
+command: match[3],
+cmdargs: match[4],
+message: match[5]
+};
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+
+4.) Funktionsweise der Bots
+
+this.onStartUpAction()  // wird einmalig beim starten des programms aufgerufen
+this.onInitAction() // wird initial vor jeder eingegangenen nachricht aufgerufen
+this.onJoinAction(irc, sender, channel)  // wird aufgerufen wenn eine person den channel beitritt
+this.onPartAction(irc, sender, message) // wird aufgerufen wenn eine person den channel verlässt
+this.onMessageAction(irc, sender, recipient, message) // wird aufgerufen wenn eine nachricht im channel oder privat geschrieben wird
+this.onIntervalAction(irc, channel, dateTime) // wird in einem einstellbaren intervall unabhängig von eingehenden nachrichten o.Ä.
+
+4.) Das IRC Objekt
+irc.write(message, recipient)
+irc.redirectTo(message, recipient, sender) // schreibt nachricht an recipient mit ‘<sender>: <message>’
+
+5.) Bot-Kommandos
+@exec // führt beliebigen JavaScript Code auf dem NodeJS Interpreter aus
+@ip // gibt die ip-Adresse des Rechners zurück auf dem der IRC bot läuft
+@say <message> // schreibt die angegebene <message> in den chat
+@timer <millis> // benachrichtigt den sender des kommandos nach ablauf von <millis>
+// TODO wird noch überarbeitet
+@learn [byes.txt|hellos.txt] <nachricht> // schreibt die übergebene nachricht in die “byes.txt” bzw hellos.txt, damit sie vom bot ausgelesen werden kann
+@hug // umarmt den bot, sodass er sich geschmeichelt fühlt und sich die so gesammelten pluspunkte in einer datei merkt (dies hat [noch] keinen einfluss)
+
+
